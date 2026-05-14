@@ -1,17 +1,17 @@
 import json
 import subprocess
+import sys
 from pathlib import Path
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
 BACKEND_DIR = PROJECT_ROOT / "backend"
-PYTHON_EXE = BACKEND_DIR / ".venv" / "Scripts" / "python.exe"
 REPORT_PATH = BACKEND_DIR / "tmp" / "integration-check-report.json"
 
 
 def test_integration_script_generates_report() -> None:
     completed = subprocess.run(
-        [str(PYTHON_EXE), "scripts/integration_check.py"],
+        [sys.executable, "scripts/integration_check.py"],
         cwd=BACKEND_DIR,
         check=False,
         capture_output=True,

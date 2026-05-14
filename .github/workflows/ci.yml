@@ -22,14 +22,15 @@ jobs:
           fi
 
   backend-test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
-        shell: pwsh
+        shell: bash
         working-directory: backend
     env:
       MOCK_LLM: "true"
       CORS_ORIGINS: "http://127.0.0.1:3000,http://localhost:3000"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -42,26 +43,38 @@ jobs:
         run: python -m venv .venv
 
       - name: Install backend deps
-        run: .\.venv\Scripts\python.exe -m pip install --upgrade pip; .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+        run: |
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements.txt
 
       - name: Compile backend
-        run: .\.venv\Scripts\python.exe -m compileall app scripts
+        run: .venv/bin/python -m compileall app scripts
+
+      - name: Show backend environment
+        run: |
+          python --version
+          .venv/bin/python --version
+          pwd
+          ls -la
+          ls -la tests
+          ls -la scripts
 
       - name: Run smoke test
-        run: .\.venv\Scripts\python.exe -m pytest tests/test_smoke.py -q
+        run: .venv/bin/python -m pytest tests/test_smoke.py -vv -s
 
       - name: Run auth isolation test
-        run: .\.venv\Scripts\python.exe -m pytest tests/test_auth_isolation.py -q
+        run: .venv/bin/python -m pytest tests/test_auth_isolation.py -vv -s
 
   integration-check:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     defaults:
       run:
-        shell: pwsh
+        shell: bash
         working-directory: backend
     env:
       MOCK_LLM: "true"
       CORS_ORIGINS: "http://127.0.0.1:3000,http://localhost:3000"
+      PYTHONUTF8: "1"
     steps:
       - uses: actions/checkout@v4
 
@@ -74,10 +87,30 @@ jobs:
         run: python -m venv .venv
 
       - name: Install backend deps
-        run: .\.venv\Scripts\python.exe -m pip install --upgrade pip; .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+        run: |
+          .venv/bin/python -m pip install --upgrade pip
+          .venv/bin/python -m pip install -r requirements.txt
+
+      - name: Show integration environment
+        run: |
+          python --version
+          .venv/bin/python --version
+          pwd
+          ls -la
+          ls -la tmp || true
 
       - name: Run integration check
-        run: .\.venv\Scripts\python.exe scripts\integration_check.py
+        run: .venv/bin/python scripts/integration_check.py
+
+      - name: Show integration report
+        if: always()
+        run: |
+          if [ -f tmp/integration-check-report.json ]; then
+            echo "integration-check-report.json:"
+            cat tmp/integration-check-report.json
+          else
+            echo "integration-check-report.json not found"
+          fi
 
   frontend-build:
     runs-on: windows-latest
