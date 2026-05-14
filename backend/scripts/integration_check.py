@@ -8,6 +8,12 @@ from pathlib import Path
 import httpx
 
 
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+if hasattr(sys.stderr, "reconfigure"):
+    sys.stderr.reconfigure(encoding="utf-8")
+
+
 def print_section(title: str, payload: object) -> None:
     print(f"\n=== {title} ===")
     print(json.dumps(payload, ensure_ascii=False, indent=2))

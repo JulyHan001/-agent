@@ -15,7 +15,7 @@
 - `M2`：已完成，已验收
 - `M3`：已完成，已验收
 - `M4`：已完成，已验收
-- `M4.5`：未开始
+- `M4.5`：进行中，CI 结构性修复已完成，待 GitHub 绿灯验收
 - `M4.6`：未开始
 - `M5`：未开始
 - `M6`：未开始
@@ -296,6 +296,15 @@ GitHub 仓库：
 - 已完成首次推送，当前主干提交：`9293f51 chore: merge remote bootstrap commit`
 - 已识别首轮 GitHub Actions 失败范围：`backend-test` 与 `integration-check`
 - 已在 `feature/m4.5-ci-fix` 分支修复后端 CI 缺失显式依赖的问题，待通过 PR 合并回 `main`
+- 已完成本轮 CI 结构性修复，修复策略如下：
+- 将后端相关 GitHub Actions job 从 `windows-latest` 统一切换为 `ubuntu-latest`
+- 去除测试文件中对 `.venv\\Scripts\\python.exe` 的硬编码，改为复用当前解释器 `sys.executable`
+- 为 `integration_check.py` 增加 UTF-8 标准输出配置，避免 CI 控制台编码导致日志异常
+- 在 CI 中补充 Python 版本、工作目录、测试目录和集成报告输出，确保后续失败可直接定位
+- 已完成本轮本地验收：
+- `backend/scripts/integration_check.py` 通过
+- `backend/.venv/Scripts/python.exe -m pytest backend/tests/test_smoke.py backend/tests/test_auth_isolation.py -q` 通过
+- `frontend npm run build` 通过
 - 待完成 GitHub 侧 CI 绿灯验证与 `main` 保护配置
 
 ### M4.6：PostgreSQL 持久化升级（M5 前置）
