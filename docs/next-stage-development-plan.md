@@ -294,6 +294,8 @@ GitHub 仓库：
 - `frontend npm run build` 通过
 - 已完成本地首次提交：`147d47c chore: initialize github managed project baseline`
 - 已完成首次推送，当前主干提交：`9293f51 chore: merge remote bootstrap commit`
+- 已识别首轮 GitHub Actions 失败范围：`backend-test` 与 `integration-check`
+- 已在 `feature/m4.5-ci-fix` 分支修复后端 CI 缺失显式依赖的问题，待通过 PR 合并回 `main`
 - 待完成 GitHub 侧 CI 绿灯验证与 `main` 保护配置
 
 ### M4.6：PostgreSQL 持久化升级（M5 前置）
