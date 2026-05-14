@@ -1,0 +1,107 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  repo-hygiene-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check forbidden tracked paths
+        run: |
+          set -e
+          forbidden_patterns='(^|/)(node_modules|\.next|\.venv|__pycache__|\.pytest_cache|playwright-report|test-results)(/|$)|(^|/)backend/data/.*\.db$|(^|/)\.env$|(^|/)\.env\.local$'
+          tracked="$(git ls-files)"
+          if echo "$tracked" | grep -E "$forbidden_patterns" >/dev/null; then
+            echo "Found forbidden tracked files or directories:"
+            echo "$tracked" | grep -E "$forbidden_patterns"
+            exit 1
+          fi
+
+  backend-test:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: backend
+    env:
+      MOCK_LLM: "true"
+      CORS_ORIGINS: "http://127.0.0.1:3000,http://localhost:3000"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create venv
+        run: python -m venv .venv
+
+      - name: Install backend deps
+        run: .\.venv\Scripts\python.exe -m pip install --upgrade pip; .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+      - name: Compile backend
+        run: .\.venv\Scripts\python.exe -m compileall app scripts
+
+      - name: Run smoke test
+        run: .\.venv\Scripts\python.exe -m pytest tests/test_smoke.py -q
+
+      - name: Run auth isolation test
+        run: .\.venv\Scripts\python.exe -m pytest tests/test_auth_isolation.py -q
+
+  integration-check:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: backend
+    env:
+      MOCK_LLM: "true"
+      CORS_ORIGINS: "http://127.0.0.1:3000,http://localhost:3000"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Create venv
+        run: python -m venv .venv
+
+      - name: Install backend deps
+        run: .\.venv\Scripts\python.exe -m pip install --upgrade pip; .\.venv\Scripts\python.exe -m pip install -r requirements.txt
+
+      - name: Run integration check
+        run: .\.venv\Scripts\python.exe scripts\integration_check.py
+
+  frontend-build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: frontend
+    env:
+      NEXT_PUBLIC_API_BASE_URL: "http://127.0.0.1:8000"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend deps
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Build frontend
+        run: npm run build

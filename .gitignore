@@ -1,0 +1,28 @@
+# dependencies
+frontend/node_modules/
+
+# next.js
+frontend/.next/
+frontend/test-results/
+frontend/playwright-report/
+
+# python
+backend/.venv/
+backend/**/__pycache__/
+backend/**/*.pyc
+backend/.pytest_cache/
+
+# env files
+frontend/.env.local
+backend/.env
+
+# local data
+backend/data/*.db
+backend/tmp/
+
+# logs
+*.log
+
+# os/editor
+.DS_Store
+Thumbs.db
