@@ -293,7 +293,8 @@ GitHub 仓库：
 - `backend/.venv/Scripts/python.exe -m pytest backend/tests/test_smoke.py backend/tests/test_auth_isolation.py -q` 通过
 - `frontend npm run build` 通过
 - 已完成本地首次提交：`147d47c chore: initialize github managed project baseline`
-- 待完成首次推送、GitHub 侧 CI 绿灯验证与 `main` 保护配置
+- 已完成首次推送，当前主干提交：`9293f51 chore: merge remote bootstrap commit`
+- 待完成 GitHub 侧 CI 绿灯验证与 `main` 保护配置
 
 ### M4.6：PostgreSQL 持久化升级（M5 前置）
 
